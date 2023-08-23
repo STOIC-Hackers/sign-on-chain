@@ -7,12 +7,14 @@ import "forge-std/console2.sol";
 
 contract NftSignTest is Test {
     NftSign signContract;
+    address owner = makeAddr("owner");
 
     function setUp() public {
         // string[] memory args = new string(2);
         address signerAddress = 0x7368ea4b5A7204CFe592d096D4CdC8832f754027;
         string
             memory documentContentHash = "bafybeidfdjh5jlw4snx3pnztauqzd5ivek6f2krb675tvrkulqzhfuuqlm";
+        vm.prank(owner);
         signContract = new NftSign(signerAddress, documentContentHash);
     }
 
@@ -25,5 +27,7 @@ contract NftSignTest is Test {
         signContract.sign(signContentHash);
         console.log(signContract.getDocument());
         console.log(signContract.getSign());
+
+        assertEq(signContract.ownerOf(1), owner);
     }
 }
