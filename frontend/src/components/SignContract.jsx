@@ -1,6 +1,8 @@
 /* eslint-disable react/prop-types */
 import logo from '../assets/logo.d4fbb84b.png'
 import { Link } from 'react-router-dom'
+
+
 const SignContract = ({ formState }) => {
     const { useTitle, useDescription, useSignerEmail, useSignerAddress, useFile } = formState;
     const [title] = useTitle()
@@ -9,6 +11,7 @@ const SignContract = ({ formState }) => {
     console.log(file);
     const [signerEmail] = useSignerEmail()
     const [signerAddress] = useSignerAddress()
+
     return (
         <>
             <div className='flex m-3 ml-2'>
@@ -37,3 +40,6 @@ const SignContract = ({ formState }) => {
 }
 
 export default SignContract
+
+
+
