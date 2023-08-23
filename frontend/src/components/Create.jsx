@@ -9,6 +9,7 @@ import { TailSpin } from 'react-loader-spinner'
 import { toast } from 'react-toastify'
 import emailjs from '@emailjs/browser';
 
+import styles from './style.module.css'
 
 const fileTypes = ["JPG", "PNG", "GIF", "PDF"];
 
@@ -161,3 +162,4 @@ const Create = ({ formState }) => {
 }
 
 export default Create
+

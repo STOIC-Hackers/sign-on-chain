@@ -20,7 +20,7 @@ const App = () => {
     useSignerEmail() { return [signerEmail, setSignerEmail] },
     useSignerAddress() { return [signerAddress, setSignerAddress] },
     useFile() { return [file, setFile] }
-  }
+  },
   return <>
     <Routes>
       <Route path='/' element={<Home />}></Route>

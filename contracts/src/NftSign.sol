@@ -13,9 +13,6 @@ contract NftSign is ERC721URIStorage, Ownable {
     constructor(address _intendedSigner, string memory _documentContentHash)
         ERC721("NftSign", "NS")
     {
-        // _mint(signerAddress, 0); // Mint the NFT to the signer
-        // _setTokenURI(0, ipfsContentHash); // Set the NFT's metadata URL (IPFS content hash)
-        // transferOwnership(creator); // Transfer ownership to the creator (SignFactory)
         documentContentHash = _documentContentHash;
         intendedSigner = _intendedSigner;
     }

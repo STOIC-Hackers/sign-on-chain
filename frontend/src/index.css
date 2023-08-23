@@ -6,25 +6,47 @@
 @tailwind utilities;
 
 .gradient-bg {
-    background-image:
-        linear-gradient(to top, transparent, red),
-        linear-gradient(to right, green, yellow, blue);
-    background-size: 100% 100%, 2000% 100%;
-    animation: move 5s infinite;
+  background-image:
+    linear-gradient(to top, transparent, red),
+    linear-gradient(to right, green, yellow, blue);
+  background-size: 100% 100%, 2000% 100%;
+  animation: move 5s infinite;
 }
 
 @keyframes move {
-    from {
-        background-position: center center, left center;
-    }
+  from {
+    background-position: center center, left center;
+  }
 
-    to {
-        background-position: center center, right center;
-    }
+  to {
+    background-position: center center, right center;
+  }
 }
 
 @layer base {
   html {
     font-family: 'Roboto Mono', monospace;
   }
+}
+
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
 }
