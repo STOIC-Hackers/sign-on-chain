@@ -5,15 +5,24 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract NftSign is ERC721URIStorage, Ownable {
+    string public documentTitle;
+    string public documentDescription;
     string public documentContentHash;
+
     address public intendedSigner;
     uint tokenId;
     bool public signed = false;
 
-    constructor(address _intendedSigner, string memory _documentContentHash)
-        ERC721("NftSign", "NS")
-    {
+    constructor(
+        string memory _documentTitle,
+        string memory _documentDescription,
+        address _intendedSigner,
+        string memory _documentContentHash
+    ) ERC721("NftSign", "NS") {
+        documentTitle = _documentTitle;
+        documentDescription = _documentDescription;
         documentContentHash = _documentContentHash;
+
         intendedSigner = _intendedSigner;
     }
 
