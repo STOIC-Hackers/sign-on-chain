@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {},
+    fontFamily: {
+      signature: ["Roboto Mono"],
+      sign:["Dancing Script"],
+    }
   },
   plugins: [],
 }

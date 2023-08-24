@@ -6,21 +6,21 @@
 @tailwind utilities;
 
 .gradient-bg {
-    background-image:
-        linear-gradient(to top, transparent, red),
-        linear-gradient(to right, green, yellow, blue);
-    background-size: 100% 100%, 2000% 100%;
-    animation: move 5s infinite;
+  background-image:
+    linear-gradient(to top, transparent, red),
+    linear-gradient(to right, green, yellow, blue);
+  background-size: 100% 100%, 2000% 100%;
+  animation: move 5s infinite;
 }
 
 @keyframes move {
-    from {
-        background-position: center center, left center;
-    }
+  from {
+    background-position: center center, left center;
+  }
 
-    to {
-        background-position: center center, right center;
-    }
+  to {
+    background-position: center center, right center;
+  }
 }
 
 @layer base {
@@ -46,10 +46,7 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
+  background: linear-gradient(to bottom,
       transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
 }
