@@ -1,4 +1,3 @@
-import React from 'react'
 import Header from './Header'
 import Footer from './Footer'
 import bgImg from '../assets/home-bg-img.png'

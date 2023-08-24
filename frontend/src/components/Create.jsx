@@ -8,7 +8,6 @@ import axios from 'axios'
 import { TailSpin } from 'react-loader-spinner'
 import { toast } from 'react-toastify'
 import emailjs from '@emailjs/browser';
-
 import styles from './style.module.css'
 
 const fileTypes = ["JPG", "PNG", "GIF", "PDF"];
@@ -24,6 +23,7 @@ function DragDrop({ useFile }) {
     );
 }
 
+
 const Create = ({ formState }) => {
     const { useTitle, useDescription, useSignerEmail, useSignerAddress, useFile } = formState;
     const [title, setTitle] = useTitle()
@@ -35,6 +35,7 @@ const Create = ({ formState }) => {
     const [uploading, setUploading] = useState(false)
     const [uploaded, setUploaded] = useState(false)
     const [uploadingError, setUploadingError] = useState(false)
+    const [imgHash, setImgHash] = useState(null)
 
     const handleForm = (e) => {
 
@@ -80,8 +81,9 @@ const Create = ({ formState }) => {
                         'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1OTk2ZGEwMS1lMGZkLTRmODEtODQ0NS1mMjdmMDY2Y2EzMjAiLCJlbWFpbCI6ImJpbGFsMTAxc2hhaWtoQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkYjAyMWYyZWZhYzEyNThmZmUwMCIsInNjb3BlZEtleVNlY3JldCI6ImU2MjU1MjVmMGQ1MmIyNjkxNzMxNDEwMWNjMzQyMGE5MzkzYTdlMTZiY2QwMmQ0Njk5YjgzZmEyOWE2OTMxOTEiLCJpYXQiOjE2OTI3OTU0ODh9.D61YjsgW5KvI3OIxuHjsqYVKqUlx_tlByDsrzB_3J1Y"
                     }
                 });
-                const ImgHash = `https://gateway.ipfs.io/ipfs/${res.data.IpfsHash}`;
-                console.log(ImgHash);
+                const ImgHashLink = `https://gateway.ipfs.io/ipfs/${res.data.IpfsHash}`;
+                setImgHash(res.data.IpfsHash)
+                console.log(imgHash);
                 console.log(res);
                 setUploadingError(false)
                 setUploading(false)
@@ -149,6 +151,15 @@ const Create = ({ formState }) => {
                                     uploaded == false ?
                                         <button type="submit" className='text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ml-5 '>Create E-signature request</button>
                                         : <button type="submit" className='text-white bg-green-500 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ml-5 '>Files Uploaded</button>
+                        }
+                        {
+                            uploaded ? <div>
+                                <h4 className='text-green-400 ml-5'>Created esignature request!</h4>
+                                <h4 className='text-blue-500 ml-5'><a href="">View metadata</a></h4>
+                                <h4 className='text-blue-500 ml-5'><a href="">View created contract</a></h4>
+                                <h4 className='mt-5 ml-5'>Share this url with the potential signer:</h4>
+                                <Link className='ml-5 text-blue-500' to={`/sign/${imgHash}`}> Open eSignature url</Link>
+                            </div> : null
                         }
                     </form>
                 </div>

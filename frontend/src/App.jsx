@@ -12,6 +12,7 @@ const App = () => {
   const [signerEmail, setSignerEmail] = useState("")
   const [signerAddress, setSignerAddress] = useState("")
   const [file, setFile] = useState(null);
+
   const formState = {
     useTitle() {
       return [title, setTitle]
@@ -20,7 +21,7 @@ const App = () => {
     useSignerEmail() { return [signerEmail, setSignerEmail] },
     useSignerAddress() { return [signerAddress, setSignerAddress] },
     useFile() { return [file, setFile] }
-  },
+  }
   return <>
     <Routes>
       <Route path='/' element={<Home />}></Route>
