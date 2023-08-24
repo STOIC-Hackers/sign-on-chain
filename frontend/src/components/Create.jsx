@@ -9,8 +9,14 @@ import { TailSpin } from 'react-loader-spinner'
 import { toast } from 'react-toastify'
 import emailjs from '@emailjs/browser';
 import styles from './style.module.css'
+import { ethers } from 'ethers';
+import { ABI } from '../CONSTANTS/Abi';
+import { Bytecode } from '../CONSTANTS/Bytecode';
 
 const fileTypes = ["JPG", "PNG", "GIF", "PDF"];
+const { ethereum } = window;
+
+
 
 function DragDrop({ useFile }) {
     const [file, setFile] = useFile();
@@ -36,6 +42,35 @@ const Create = ({ formState }) => {
     const [uploaded, setUploaded] = useState(false)
     const [uploadingError, setUploadingError] = useState(false)
     const [imgHash, setImgHash] = useState(null)
+    let ImgHashLink;
+
+    const deployContract = async (title, description, signerAddress, imgHash) => {
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum)
+            const signer = provider && provider?.getSigner();
+
+            const contractFactory = new ethers.ContractFactory(
+                ABI,
+                Bytecode,
+                signer
+            );
+            contractFactory.signer = signer;
+            console.log(await contractFactory.signer);
+            console.log("before Deploy");
+            const contractInstance = await contractFactory.deploy(title, description, signerAddress, imgHash)
+            console.log(contractInstance.address);
+
+            // const contractSigner = await contractInstance.connect(signerAddress);
+            // if (type === userStatus.WHITELIST) {
+            //     const tx = await contractSigner.whitelistUser(teamHash, user, {
+            //         gasLimit: 1000000,
+            //     });
+            //     return await tx.wait();
+            // }
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const handleForm = (e) => {
 
@@ -60,7 +95,7 @@ const Create = ({ formState }) => {
         const pinFileToIPFS = async () => {
             const formData = new FormData();
             formData.append('file', file)
-
+            // formData.append()
             const pinataMetadata = JSON.stringify({
                 name: file.name,
             });
@@ -81,10 +116,11 @@ const Create = ({ formState }) => {
                         'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1OTk2ZGEwMS1lMGZkLTRmODEtODQ0NS1mMjdmMDY2Y2EzMjAiLCJlbWFpbCI6ImJpbGFsMTAxc2hhaWtoQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkYjAyMWYyZWZhYzEyNThmZmUwMCIsInNjb3BlZEtleVNlY3JldCI6ImU2MjU1MjVmMGQ1MmIyNjkxNzMxNDEwMWNjMzQyMGE5MzkzYTdlMTZiY2QwMmQ0Njk5YjgzZmEyOWE2OTMxOTEiLCJpYXQiOjE2OTI3OTU0ODh9.D61YjsgW5KvI3OIxuHjsqYVKqUlx_tlByDsrzB_3J1Y"
                     }
                 });
-                const ImgHashLink = `https://gateway.ipfs.io/ipfs/${res.data.IpfsHash}`;
+                ImgHashLink = `https://gateway.ipfs.io/ipfs/${res.data.IpfsHash}`;
+
                 setImgHash(res.data.IpfsHash)
-                console.log(imgHash);
-                console.log(res);
+
+                await deployContract(title, description, signerAddress, res.data.IpfsHash)
                 setUploadingError(false)
                 setUploading(false)
                 setUploaded(true)
@@ -155,7 +191,7 @@ const Create = ({ formState }) => {
                         {
                             uploaded ? <div>
                                 <h4 className='text-green-400 ml-5'>Created esignature request!</h4>
-                                <h4 className='text-blue-500 ml-5'><a href="">View metadata</a></h4>
+                                <h4 className='text-blue-500 ml-5'><a href={ImgHashLink}>View metadata</a></h4>
                                 <h4 className='text-blue-500 ml-5'><a href="">View created contract</a></h4>
                                 <h4 className='mt-5 ml-5'>Share this url with the potential signer:</h4>
                                 <Link className='ml-5 text-blue-500' to={`/sign/${imgHash}`}> Open eSignature url</Link>

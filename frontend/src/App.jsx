@@ -4,6 +4,8 @@ import History from './components/History'
 import Create from './components/Create'
 import SignContract from './components/SignContract'
 import { useState } from 'react'
+import { Web3ReactProvider } from "@web3-react/core";
+import { Web3Provider } from "@ethersproject/providers";
 
 
 const App = () => {
@@ -28,7 +30,7 @@ const App = () => {
       <Route path='/create' element={<Create formState={formState} />}></Route>
       <Route path='/history' element={<History />}></Route>
       <Route path='/sign/:id' element={<SignContract formState={formState} />}></Route>
-    </Routes>
+    </Routes >
   </>
 }
 
