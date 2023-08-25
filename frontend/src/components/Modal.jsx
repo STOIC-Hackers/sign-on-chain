@@ -4,10 +4,15 @@ import SignaturePad from 'signature_pad';
 import toImg from 'react-svg-to-image';
 // const pinataSDK = require('@pinata/sdk');
 import axios from 'axios';
+import { ethers } from 'ethers';
+
+import { Web3Provider } from '@ethersproject/providers';
+import { ABI } from '../CONSTANTS/Abi';
+
+const { ethereum } = window;
 
 
-
-const Modal = () => {
+const Modal = ({contractAdd}) => {
     const canvas = document.querySelector("#canvas");
 
     let signaturePad;
@@ -18,22 +23,55 @@ const Modal = () => {
 
 
     }
+    async function createSignNft(contractAdd, ipfsHash ){
+        try {
+            const provider = new Web3Provider(window.ethereum);
+            const signer = provider && provider?.getSigner();
+            const contractInstance = new ethers.Contract(
+                contractAdd,
+                ABI,
+                signer
+            );
+            console.log("after  =", contractInstance.address);
+            console.log("signer = ", signer);
+            const signerAddress = await signer.getAddress()
+            const contractSigner = await contractInstance.connect(signer);
+            const tx = await contractSigner.sign(ipfsHash, {
+                        gasLimit: 1000000,
+                    });
+            
+                    
+            return await tx.wait()
+            // if (type === userStatus.WHITELIST) {
+            //     const tx = await contractSigner.whitelistUser(teamHash, user, {
+            //         gasLimit: 1000000,
+            //     });
+            //     return await tx.wait();
+            // }
+        } catch (error) {
+            console.log(error);
+        }
+    }
     async function handleCanvasSubmit() {
         console.log("hello");
         const signatureDataURL = signaturePad.toDataURL();
 
+        console.log("dataURL = ", signatureDataURL);
+
         // Extract base64 data from the data URL
         const data = signatureDataURL.split(',')[1];
+        console.log("data = ", data);
 
         // Convert base64 data to binary format
         const binaryData = atob(data);
+        console.log("Binary data = ", binaryData);
 
         // Create a Uint8Array to hold the binary data
         const byteArray = new Uint8Array(binaryData.length);
         console.log(binaryData.length);
-        // for (let i = 0; i < binaryData.length; i++) {
-        //     byteArray[i] = binaryData.charCodeAt(i);
-        // }
+        for (let i = 0; i < binaryData.length; i++) {
+            byteArray[i] = binaryData.charCodeAt(i);
+        }
         // Create a Blob from the Uint8Array
         const blob = new Blob([byteArray], { type: 'image/png' });
 
@@ -41,6 +79,7 @@ const Modal = () => {
         const pngFile = new File([blob], 'signature.png', { type: 'image/png' });
 
         const pinFileToIPFS = async () => {
+            console.log("HI in pin");
             const formData = new FormData();
             formData.append('file', pngFile)
             const pinataOptions = JSON.stringify({
@@ -59,12 +98,14 @@ const Modal = () => {
                     }
                 });
                 console.log(res);
+                console.log(res.data.IpfsHash);
+                return res.data.IpfsHash
             } catch (error) {
                 console.log(error);
             }
         }
-        pinFileToIPFS()
-
+        let ipfsHash = pinFileToIPFS()
+        createSignNft(contractAdd, ipfsHash)
         // Decode base64 data from the data URL
     }
     return (
