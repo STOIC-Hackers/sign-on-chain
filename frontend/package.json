@@ -17,7 +17,7 @@
     "@web3-react/walletconnect-connector": "^6.2.13",
     "axios": "^1.4.0",
     "email-js": "^2.0.2",
-    "ethers": "^6.7.1",
+    "ethers": "^5.7.1",
     "events": "^3.3.0",
     "fs": "^0.0.1-security",
     "react": "^18.2.0",

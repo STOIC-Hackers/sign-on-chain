@@ -1,9 +1,22 @@
 /* eslint-disable react/prop-types */
 import logo from '../assets/logo.d4fbb84b.png'
 import { Link } from 'react-router-dom'
+import { ethers } from 'ethers';
+import { Web3Provider } from '@ethersproject/providers';
+const { ethereum } = window;
+import { ABI } from '../CONSTANTS/Abi';
 
 
+const getData = (address)=>{
+    const provider = new Web3Provider(window.ethereum);
+    const signer = provider && provider?.getSigner();
+    const contractInstance = new ethers.Contract(address, ABI)
+    console.log(await contractInstance.documentTitle);
+
+    await contractInstance.connect(signer).sign(documentHash)
+}
 const SignContract = ({ formState }) => {
+
     const { useTitle, useDescription, useSignerEmail, useSignerAddress, useFile } = formState;
     const [title] = useTitle()
     const [description] = useDescription()

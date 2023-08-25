@@ -89,11 +89,6 @@ const Create = ({ formState }) => {
 
     const deployContract = async (title, description, signerAddress, imgHash) => {
         try {
-            // // const provider = new Web3Provider(window.ethereum); // Use Web3Provider instead of BrowserProvider
-            // const web3ModalRef = useRef();
-
-            // const signer = getProviderOrSigner(true)
-
             const provider = new Web3Provider(window.ethereum);
             const signer = provider && provider?.getSigner();
             const contractFactory = new ethers.ContractFactory(
@@ -101,17 +96,25 @@ const Create = ({ formState }) => {
                 Bytecode,
                 signer
             );
-            contractFactory.signer = signer;
+            // contractFactory.signer = signer;
             // console.log("this i beofre=", (await contractFactory.signer));
             const address = (await signer.getAddress());
             console.log("Address:", address);
             console.log("before Deploy");
             console.log(title, description, signerAddress, imgHash);
             const contractInstance = await contractFactory.deploy(title, description, signerAddress, imgHash)
-            console.log("after  =", contractInstance.address);
-            await contractInstance.deployTransaction.wait();
+            console.log("after deplpoy =");
 
-            console.log(await contractInstance.title());
+            await contractInstance.deployTransaction.wait()
+            console.log("after  =", contractInstance.address);
+            
+            console.log(await contractInstance.documentTitle());
+            console.log(await contractInstance.documentDescription());
+
+            console.log(await contractInstance.documentContentHash());
+
+            console.log(await contractInstance.intendedSigner());
+
             // const contractSigner = await contractInstance.connect(signerAddress);
             // if (type === userStatus.WHITELIST) {
             //     const tx = await contractSigner.whitelistUser(teamHash, user, {
