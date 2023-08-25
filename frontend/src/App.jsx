@@ -4,8 +4,6 @@ import History from './components/History'
 import Create from './components/Create'
 import SignContract from './components/SignContract'
 import { useState } from 'react'
-import { Web3ReactProvider } from "@web3-react/core";
-import { Web3Provider } from "@ethersproject/providers";
 
 
 const App = () => {
