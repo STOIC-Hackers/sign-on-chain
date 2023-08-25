@@ -1,0 +1,84 @@
+
+import SignatureCanvas from 'react-signature-canvas'
+import SignaturePad from 'signature_pad';
+import toImg from 'react-svg-to-image';
+// const pinataSDK = require('@pinata/sdk');
+import axios from 'axios';
+
+
+
+const Modal = () => {
+    const canvas = document.querySelector("#canvas");
+
+    let signaturePad;
+    if (canvas) {
+        signaturePad = new SignaturePad(canvas);
+        signaturePad.backgroundColor = "black"
+        signaturePad.penColor = 'red';
+
+
+    }
+    async function handleCanvasSubmit() {
+        console.log("hello");
+        const signatureDataURL = signaturePad.toDataURL();
+
+        // Extract base64 data from the data URL
+        const data = signatureDataURL.split(',')[1];
+
+        // Convert base64 data to binary format
+        const binaryData = atob(data);
+
+        // Create a Uint8Array to hold the binary data
+        const byteArray = new Uint8Array(binaryData.length);
+        console.log(binaryData.length);
+        // for (let i = 0; i < binaryData.length; i++) {
+        //     byteArray[i] = binaryData.charCodeAt(i);
+        // }
+        // Create a Blob from the Uint8Array
+        const blob = new Blob([byteArray], { type: 'image/png' });
+
+        // Create a File from the Blob (optional)
+        const pngFile = new File([blob], 'signature.png', { type: 'image/png' });
+
+        const pinFileToIPFS = async () => {
+            const formData = new FormData();
+            formData.append('file', pngFile)
+            const pinataOptions = JSON.stringify({
+                cidVersion: 0,
+            })
+            formData.append('pinataOptions', pinataOptions);
+
+            try {
+                const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
+                    maxBodyLength: "Infinity",
+                    headers: {
+                        'Content-Type': `multipart/form-data`,
+                        'pinata_api_key': 'db021f2efac1258ffe00',
+                        'pinata_secret_api_key': 'e625525f0d52b26917314101cc3420a9393a7e16bcd02d4699b83fa29a693191',
+                        'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1OTk2ZGEwMS1lMGZkLTRmODEtODQ0NS1mMjdmMDY2Y2EzMjAiLCJlbWFpbCI6ImJpbGFsMTAxc2hhaWtoQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkYjAyMWYyZWZhYzEyNThmZmUwMCIsInNjb3BlZEtleVNlY3JldCI6ImU2MjU1MjVmMGQ1MmIyNjkxNzMxNDEwMWNjMzQyMGE5MzkzYTdlMTZiY2QwMmQ0Njk5YjgzZmEyOWE2OTMxOTEiLCJpYXQiOjE2OTI3OTU0ODh9.D61YjsgW5KvI3OIxuHjsqYVKqUlx_tlByDsrzB_3J1Y"
+                    }
+                });
+                console.log(res);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        pinFileToIPFS()
+
+        // Decode base64 data from the data URL
+    }
+    return (
+        <div>
+            <div>
+                <input className='bg-black' type="text" name="name" id="" />
+            </div>
+            <div>
+                <SignatureCanvas penColor='red'
+                    canvasProps={{ width: 500, height: 200, className: 'bg-black', id: 'canvas' }} />
+            </div>
+            <button onClick={handleCanvasSubmit} type="submit">Submit</button>
+        </div>
+    )
+}
+
+export default Modal

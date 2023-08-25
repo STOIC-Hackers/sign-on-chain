@@ -44,19 +44,20 @@ const Create = ({ formState }) => {
     const [uploadingError, setUploadingError] = useState(false)
     const [imgHash, setImgHash] = useState(null)
     const [transactionId, setTransactionId] = useState()
+    const [contractAddress, setContractAddress] = useState()
 
-    const sendTx = async (address) => {
-        const res = await ethereum.request({
-            method: "eth_sendTransaction",
-            params: [{
-                to: "0xB028917C58aA30D891049e55a9AaAAEa0473a9AE",
-                from: "0x4A30840eF172FEe3745fEd8e757Cdd6922C2ac92",
-                value: "0x00",
-                chainId: "0x13881"
-            }]
-        })
-        return res;
-    }
+    // const sendTx = async (address) => {
+    //     const res = await ethereum.request({
+    //         method: "eth_sendTransaction",
+    //         params: [{
+    //             to: "0xB028917C58aA30D891049e55a9AaAAEa0473a9AE",
+    //             from: "0x4A30840eF172FEe3745fEd8e757Cdd6922C2ac92",
+    //             value: "0x00",
+    //             chainId: "0x13881"
+    //         }]
+    //     })
+    //     return res;
+    // }
     // const deployContract = async (title, description, signerAddress, imgHash) => {
     //     try {
     //         // const provider = new Web3Provider(window.ethereum); // Use Web3Provider instead of BrowserProvider
@@ -99,21 +100,15 @@ const Create = ({ formState }) => {
             // contractFactory.signer = signer;
             // console.log("this i beofre=", (await contractFactory.signer));
             const address = (await signer.getAddress());
-            console.log("Address:", address);
-            console.log("before Deploy");
-            console.log(title, description, signerAddress, imgHash);
             const contractInstance = await contractFactory.deploy(title, description, signerAddress, imgHash)
-            console.log("after deplpoy =");
 
             await contractInstance.deployTransaction.wait()
+            console.log(contractInstance);
             console.log("after  =", contractInstance.address);
-            
-            console.log(await contractInstance.documentTitle());
-            console.log(await contractInstance.documentDescription());
+            return contractInstance.address;
 
-            console.log(await contractInstance.documentContentHash());
+            // console.log(await contractInstance.intendedSigner());
 
-            console.log(await contractInstance.intendedSigner());
 
             // const contractSigner = await contractInstance.connect(signerAddress);
             // if (type === userStatus.WHITELIST) {
@@ -176,9 +171,12 @@ const Create = ({ formState }) => {
         const pinFileToIPFS = async () => {
             const formData = new FormData();
             formData.append('file', file)
-            // formData.append()
+
             const pinataMetadata = JSON.stringify({
                 name: file.name,
+                title,
+                description,
+                signerAddress
             });
             formData.append('pinataMetadata', pinataMetadata);
 
@@ -198,10 +196,9 @@ const Create = ({ formState }) => {
                     }
                 });
                 setImgHash(res.data.IpfsHash)
-                // const transactionId = await sendTx()
-                // setTransactionId(transactionId)
-                deployContract(title, description, signerAddress, res.data.IpfsHash)
-                // await deployContract(title, description, signerAddress, res.data.IpfsHash)
+
+                const contractAddress = await deployContract(title, description, signerAddress, res.data.IpfsHash)
+                setContractAddress(contractAddress)
                 setUploadingError(false)
                 setUploading(false)
                 setUploaded(true)
@@ -273,9 +270,9 @@ const Create = ({ formState }) => {
                             uploaded ? <div>
                                 <h4 className='text-green-400 ml-5'>Created esignature request!</h4>
                                 <h4 className='text-blue-500 ml-5'><a href={`https://ipfs.io/ipfs/${imgHash}`}>View metadata</a></h4>
-                                <h4 className='text-blue-500 ml-5'><a href={`https://mumbai.polygonscan.com/tx/${transactionId}`}>View created contract</a></h4>
+                                <h4 className='text-blue-500 ml-5'><a href={`https://mumbai.polygonscan.com/address/${contractAddress}`}>View created contract</a></h4>
                                 <h4 className='mt-5 ml-5'>Share this url with the potential signer:</h4>
-                                <Link className='ml-5 text-blue-500' to={`/sign/${imgHash}`}> Open eSignature url</Link>
+                                <Link className='ml-5 text-blue-500' to={`/sign/${imgHash}/${contractAddress}`}> Open eSignature url</Link>
                             </div> : null
                         }
                     </form>
