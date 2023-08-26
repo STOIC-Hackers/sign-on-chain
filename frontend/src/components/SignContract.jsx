@@ -18,20 +18,13 @@ const SignContract = ({ formState }) => {
     const [description, setDescription] = useState()
     const [documentContentHash, setDocumentContentHash] = useState()
     const [showModal, setShowModal] = useState(false)
+    const [fileName, setFileName] = useState()
+    const [finalObj, setFinalObj] = useState(null)
 
-    const { useTitle, useDescription, useSignerEmail, useSignerAddress, useFile } = formState;
+    // const { useTitle, useDescription, useSignerEmail, useSignerAddress, useFile } = formState;
     // const [title] = useTitle()
     // const [description] = useDescription()
-    const [file] = useFile()
-    const [signerEmail] = useSignerEmail()
-    const [signerAddress] = useSignerAddress()
-
-    // function showModalfunc() {
-    //     setShowModal(!showModal)
-    //     if (showModal) {
-
-    //     }
-    // }
+    // const [file] = useFile()
 
     const getData = async (cid, contractAdd) => {
         const provider = new Web3Provider(window.ethereum);
@@ -41,9 +34,11 @@ const SignContract = ({ formState }) => {
         const title = await contractInstance.documentTitle()
         const description = await contractInstance.documentDescription()
         const documentContentHash = await contractInstance.documentContentHash()
+        const fileName = await contractInstance.fileName()
         setTitle(title)
         setDescription(description)
         setDocumentContentHash(documentContentHash)
+        setFileName(fileName)
 
         // let res = await contractInstance.connect(signer).sign(cid)
         // console.log(res);
@@ -52,6 +47,12 @@ const SignContract = ({ formState }) => {
     useEffect(() => {
         getData(cid, contractAdd)
     }, [])
+
+    if (finalObj) {
+        return <pre className='text-white'>
+            {finalObj}
+        </pre>
+    }
 
     return (
         <>
@@ -66,15 +67,15 @@ const SignContract = ({ formState }) => {
                     <ul className='mt-8 bg-red-400'>
                         <li className='mt-5 ml-5 text-xl font-semibold'>{title}</li>
                         <li className='mt-5 ml-5'>{description}</li>
-                        <li className='mt-5 ml-5'><a className='text-blue-500' href="">View Contract (Mumbai)</a></li>
+                        <li className='mt-5 ml-5'><a className='text-blue-500' href={`https://mumbai.polygonscan.com/address/${contractAdd}`}>View Contract (Mumbai)</a></li>
                         <li className='mt-5 ml-5'><a className='text-blue-500' href="">View Request</a></li>
                         <h1 className='mt-5 ml-5 font-bold'>Documents to acknowledge:</h1>
-                        <li className='mt-5 ml-5'>{file ? file.name : "No file Selected"}</li>
+                        <li className='mt-5 ml-5'><a href={`https://ipfs.io/ipfs/${cid}`}>{fileName}</a></li>
                         <li className='mt-12 ml-5 text-sm'>By continuing, you agree to the documents listed and available for download above.</li>
 
                         <button onClick={() => null} className='text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] mt-5 ml-5'>Accept Documents</button>
                     </ul>
-                    <Modal contractAdd={contractAdd} />
+                    <Modal setFinalObj={setFinalObj} contractAdd={contractAdd} />
                 </div>
             </div>
         </>

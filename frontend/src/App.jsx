@@ -1,6 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
 import Home from './components/Home'
-import History from './components/History'
 import Create from './components/Create'
 import SignContract from './components/SignContract'
 import { useState } from 'react'
@@ -12,6 +11,7 @@ const App = () => {
   const [signerEmail, setSignerEmail] = useState("")
   const [signerAddress, setSignerAddress] = useState("")
   const [file, setFile] = useState(null);
+  const [accountAddress, setAccountAddress] = useState("")
 
   const formState = {
     useTitle() {
@@ -20,13 +20,13 @@ const App = () => {
     useDescription() { return [description, setDescription] },
     useSignerEmail() { return [signerEmail, setSignerEmail] },
     useSignerAddress() { return [signerAddress, setSignerAddress] },
-    useFile() { return [file, setFile] }
+    useFile() { return [file, setFile] },
+    useAccountAddress() { return [accountAddress, setAccountAddress] }
   }
   return <>
     <Routes>
-      <Route path='/' element={<Home />}></Route>
+      <Route path='/' element={<Home accountAddress={accountAddress} setAccountAddress={setAccountAddress} />}></Route>
       <Route path='/create' element={<Create formState={formState} />}></Route>
-      <Route path='/history' element={<History />}></Route>
       <Route path='/sign/:cid/:contractAdd' element={<SignContract formState={formState} />}></Route>
     </Routes >
   </>
