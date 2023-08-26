@@ -14,11 +14,13 @@ contract NftSignTest is Test {
         address signerAddress = 0x7368ea4b5A7204CFe592d096D4CdC8832f754027;
         string memory documentDescription = "Offer letter to the employee";
         string memory documentTitle = "Offer letter";
+        string memory fileName = "Offer_letter.pdf";
 
         string
             memory documentContentHash = "bafybeidfdjh5jlw4snx3pnztauqzd5ivek6f2krb675tvrkulqzhfuuqlm";
         vm.prank(owner);
         signContract = new NftSign(
+            fileName,
             documentTitle,
             documentDescription,
             signerAddress,
