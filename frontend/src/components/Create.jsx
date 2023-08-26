@@ -88,7 +88,7 @@ const Create = ({ formState }) => {
     //     }
     // };
 
-    const deployContract = async (title, description, signerAddress, imgHash) => {
+    const deployContract = async (fileName, title, description, signerAddress, imgHash) => {
         try {
             const provider = new Web3Provider(window.ethereum);
             const signer = provider && provider?.getSigner();
@@ -100,7 +100,7 @@ const Create = ({ formState }) => {
             // contractFactory.signer = signer;
             // console.log("this i beofre=", (await contractFactory.signer));
             const address = (await signer.getAddress());
-            const contractInstance = await contractFactory.deploy(title, description, signerAddress, imgHash)
+            const contractInstance = await contractFactory.deploy(fileName, title, description, signerAddress, imgHash)
 
             await contractInstance.deployTransaction.wait()
             console.log(contractInstance);
@@ -196,8 +196,8 @@ const Create = ({ formState }) => {
                     }
                 });
                 setImgHash(res.data.IpfsHash)
-
-                const contractAddress = await deployContract(title, description, signerAddress, res.data.IpfsHash)
+                console.log("File = ",file);
+                const contractAddress = await deployContract( file.name, title, description, signerAddress, res.data.IpfsHash)
                 setContractAddress(contractAddress)
                 setUploadingError(false)
                 setUploading(false)
