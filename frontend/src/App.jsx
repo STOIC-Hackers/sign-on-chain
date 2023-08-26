@@ -27,8 +27,8 @@ const App = () => {
       <Route path='/' element={<Home />}></Route>
       <Route path='/create' element={<Create formState={formState} />}></Route>
       <Route path='/history' element={<History />}></Route>
-      <Route path='/sign/:id' element={<SignContract formState={formState} />}></Route>
-    </Routes>
+      <Route path='/sign/:cid/:contractAdd' element={<SignContract formState={formState} />}></Route>
+    </Routes >
   </>
 }
 
