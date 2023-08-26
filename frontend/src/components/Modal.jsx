@@ -136,10 +136,10 @@ const Modal = ({ contractAdd, setFinalObj }) => {
                 <input className='bg-black' type="text" name="name" id="" />
             </div>
             <div>
-                <SignatureCanvas penColor='red'
-                    canvasProps={{ width: 500, height: 200, className: 'bg-black', id: 'canvas' }} />
+                <SignatureCanvas penColor='cyan'
+                    canvasProps={{ width: 500, height: 200, className: ' ml -3 px-3 bg-black', id: 'canvas' }} />
             </div>
-            <button onClick={handleCanvasSubmit} type="submit">Submit</button>
+            <button onClick={handleCanvasSubmit} type="submit" className="  text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] mt-5 ml-5">Submit</button>
         </div>
     )
 }
