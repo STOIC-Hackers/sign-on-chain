@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import logo from '../assets/logo.d4fbb84b.png'
+import logo from '../assets/newlogo.png'
 import { ethers } from 'ethers';
 import { useEffect, useLayoutEffect, useState } from 'react';
 // import Login from './login';
@@ -11,7 +11,6 @@ import { Web3Provider } from '@ethersproject/providers';
 
 
 const Header = ({ accountAddress, setAccountAddress, chainId, setChainId }) => {
-
 
     async function handleChainChanged() {
         const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });

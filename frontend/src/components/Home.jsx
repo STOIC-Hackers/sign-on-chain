@@ -1,6 +1,6 @@
 import Header from './Header'
 import Footer from './Footer'
-import bgImg from '../assets/home-bg-img.png'
+import bgImg from '../assets/newlogo.png'
 import { Link } from 'react-router-dom'
 import { useEffect } from 'react'
 
