@@ -144,6 +144,7 @@ const Create = ({ formState, setChainId, chainId, setMetaDataHash, metaDataHash 
                     }
                 });
                 setImgHash(res.data.IpfsHash)
+                console.log(file.name, title, description, signerAddress, res.data.IpfsHash)
                 const contractAddress = await deployContract(file.name, title, description, signerAddress, res.data.IpfsHash)
                 setContractAddress(contractAddress)
                 const documentUrl = `https://ipfs.io/ipfs/${res.data.IpfsHash}`
@@ -167,8 +168,9 @@ const Create = ({ formState, setChainId, chainId, setMetaDataHash, metaDataHash 
     return (
         <>
             <Header chainId={chainId} setChainId={setChainId} accountAddress={accountAddress} setAccountAddress={setAccountAddress} />
-            <div className='bg-gradient-to-bl  from-sky-900 via-gray-900 to-slate-900 min-h-fit flex justify-center p-1'>
-                <div className='bg-gray-600 w-2/4 mt-16'>
+            <div className='bg-gradient-to-bl  from-sky-900 via-gray-900 to-slate-900 min-h-fit flex justify-center p-1 '>
+                <div className={`${styles['bg-gradient-to-br']} ${styles['animate-spin-slow']} p-8 mt-[10vh] w-[60vw] shadow-2xl`}>
+
                     <h1 className='mt-5 ml-5 font-extrabold text-cyan-500 text-3xl'>Create new esignature request</h1>
                     <form onSubmit={handleForm} >
                         <section>
@@ -231,7 +233,7 @@ const Create = ({ formState, setChainId, chainId, setMetaDataHash, metaDataHash 
                         }
                     </form>
                 </div>
-                <div className='bg-gray-600 ml-8 w-80 h-64 mt-16 text-cyan-500 font-semibold'>
+                <div className={`${styles['bg-gradient-to-br']} ${styles['animate-spin-slow']} p-8 text-cyan-300 font-bold text-xl  shadow-2xl ml-8 w-80 h-64 mt-16`}>
                     <h5>Fill in fields Enter required data.</h5>
                 </div>
             </div>
@@ -243,3 +245,5 @@ const Create = ({ formState, setChainId, chainId, setMetaDataHash, metaDataHash 
 export default Create
 
 //text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)]
+//{`${styles['bg-gradient-to-br']} ${styles['animate-spin-slow']} p-8 mt-[10vh] w-[60vw] shadow-2xl`}
+//bg-gray-600 ml-8 w-80 h-64 mt-16 text-cyan-500 font-semibold
