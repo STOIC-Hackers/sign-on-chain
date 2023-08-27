@@ -144,6 +144,7 @@ const Create = ({ formState, setChainId, chainId, setMetaDataHash, metaDataHash 
                     }
                 });
                 setImgHash(res.data.IpfsHash)
+                console.log(file.name, title, description, signerAddress, res.data.IpfsHash)
                 const contractAddress = await deployContract(file.name, title, description, signerAddress, res.data.IpfsHash)
                 setContractAddress(contractAddress)
                 const documentUrl = `https://ipfs.io/ipfs/${res.data.IpfsHash}`

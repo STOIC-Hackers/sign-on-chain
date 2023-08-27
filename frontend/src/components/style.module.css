@@ -11,7 +11,7 @@
 }
 
 .bg-gradient-to-br {
-  background: linear-gradient(to bottom right, #1b0bc28f,#785ce6); /* Replace #xxx and #yyy with your desired gradient colors */
+  background: linear-gradient(to bottom right, #144B9F,#161911); /* Replace #xxx and #yyy with your desired gradient colors */
   background-size: 200% 200%;
 }
 
