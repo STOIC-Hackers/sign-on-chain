@@ -8,11 +8,12 @@ import { ethers } from 'ethers';
 
 import { Web3Provider } from '@ethersproject/providers';
 import { ABI } from '../CONSTANTS/Abi';
+import { useState } from 'react';
 
 const { ethereum } = window;
 
 
-const Modal = ({contractAdd}) => {
+const Modal = ({ contractAdd, setFinalObj }) => {
     const canvas = document.querySelector("#canvas");
 
     let signaturePad;
@@ -23,7 +24,7 @@ const Modal = ({contractAdd}) => {
 
 
     }
-    async function createSignNft(contractAdd, ipfsHash ){
+    async function createSignNft(contractAdd, ipfsHash) {
         try {
             const provider = new Web3Provider(window.ethereum);
             const signer = provider && provider?.getSigner();
@@ -37,17 +38,37 @@ const Modal = ({contractAdd}) => {
             const signerAddress = await signer.getAddress()
             const contractSigner = await contractInstance.connect(signer);
             const tx = await contractSigner.sign(ipfsHash, {
-                        gasLimit: 1000000,
-                    });
-            
-                    
-            return await tx.wait()
+                gasLimit: 1000000,
+            });
+            const res = await tx.wait()
+            console.log("res", res);
+            const txReciept = await provider.getTransaction(res.transactionHash)
+            console.log("txReceipt", txReciept);
+            // return await tx.wait()
             // if (type === userStatus.WHITELIST) {
             //     const tx = await contractSigner.whitelistUser(teamHash, user, {
             //         gasLimit: 1000000,
             //     });
             //     return await tx.wait();
             // }
+            const nftSignUrl = await contractInstance.getSign()
+            const fileName = await contractInstance.fileName()
+            console.log(nftSignUrl);
+            const nftResults = {
+                signatureNft: {
+                    response: "OK",
+                    ipfs_url: nftSignUrl,
+                    file_name: fileName,
+                    content_type: 'image/png'
+                }
+            }
+            const nftTransactionDetails = {
+                nftResults,
+                ...txReciept,
+            }
+            const finalObj = JSON.stringify(nftTransactionDetails, null, 6)
+            setFinalObj(finalObj)
+            console.log(finalObj);
         } catch (error) {
             console.log(error);
         }
@@ -108,16 +129,17 @@ const Modal = ({contractAdd}) => {
         createSignNft(contractAdd, ipfsHash)
         // Decode base64 data from the data URL
     }
+
     return (
         <div>
             <div>
                 <input className='bg-black' type="text" name="name" id="" />
             </div>
             <div>
-                <SignatureCanvas penColor='red'
-                    canvasProps={{ width: 500, height: 200, className: 'bg-black', id: 'canvas' }} />
+                <SignatureCanvas penColor='cyan'
+                    canvasProps={{ width: 500, height: 200, className: ' ml -3 px-3 bg-black', id: 'canvas' }} />
             </div>
-            <button onClick={handleCanvasSubmit} type="submit">Submit</button>
+            <button onClick={handleCanvasSubmit} type="submit" className="  text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] mt-5 ml-5">Submit</button>
         </div>
     )
 }

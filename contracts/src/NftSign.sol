@@ -45,7 +45,7 @@ contract NftSign is ERC721URIStorage, Ownable {
         external
         onlyIntendedSigner
     {
-        require(signed == false, "Document already signed");
+        // require(signed == false, "Document already signed");
         tokenId += 1;
         signed = true;
         _mint(owner(), tokenId); // Mint a new NFT for the signer

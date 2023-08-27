@@ -2,14 +2,25 @@ import Header from './Header'
 import Footer from './Footer'
 import bgImg from '../assets/newlogo.png'
 import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
 
-const Home = () => {
+const Home = ({ accountAddress, setAccountAddress, setChainId, chainId }) => {
+
+    useEffect(() => {
+        async function getChainId() {
+            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+            setChainId(chainId)
+            console.log(chainId);
+        }
+        getChainId()
+    })
+
     return (
         <>
-            <Header />
+            <Header chainId={chainId} setChainId={setChainId} accountAddress={accountAddress} setAccountAddress={setAccountAddress} />
             <div className='bg-gradient-to-bl  from-sky-900 via-gray-900 to-slate-900 h-screen flex justify-center justify-items-center py-4 '>
                 <div className='w-1/4 mt-44'>
-                    <h1 className=" text-4xl font-extrabold animate-pulse bg-gradient-to-r from-pink-500 via-green-500 to-violet-500 bg-clip-text text-transparent">Polygon-backed</h1>
+                    <h1 className=" text-4xl font-extrabold animate-pulse bg-gradient-to-r from-pink-500 via-green-500 to-violet-500 bg-clip-text text-transparent"> Aurora chain</h1>
                     <h1 className='text-3xl font-semibold text-white' > esignature requests for everyone|.</h1>
                     <ul className='mt-5 font-semibold text-lg'>
                         <li className='mt-5 text-white'>Free esignature request page hosting on IPFS</li>

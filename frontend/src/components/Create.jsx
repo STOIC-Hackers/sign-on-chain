@@ -6,7 +6,6 @@ import Footer from './Footer';
 import { Link } from 'react-router-dom';
 import axios from 'axios'
 import { TailSpin } from 'react-loader-spinner'
-import { toast } from 'react-toastify'
 import emailjs from '@emailjs/browser';
 import styles from './style.module.css'
 import { ethers } from 'ethers';
@@ -17,6 +16,21 @@ import { Web3Provider } from '@ethersproject/providers';
 const fileTypes = ["JPG", "PNG", "GIF", "PDF"];
 const { ethereum } = window;
 
+
+function sendEmail(signerEmail, signerAddress, imgHash, contractAddress) {
+    const Link = `http://localhost:5173/sign/${imgHash}/${contractAddress}`
+    if (signerEmail) {
+        emailjs.send('service_cn9z4ey', 'template_2smz5d1', { from_name: 'sign-on-chain', to_name: signerAddress, message: `Here is the link to sign the contract ${Link}`, signer_email: signerEmail }, 'mWritrH0gsysW65x4')
+            .then((result) => {
+                // show the user a success message
+                console.log(result);
+            }, (error) => {
+                // show the user an error
+                console.log(error);
+            });
+    }
+
+}
 
 
 function DragDrop({ useFile }) {
@@ -31,63 +45,44 @@ function DragDrop({ useFile }) {
 }
 
 
-const Create = ({ formState }) => {
-    const { useTitle, useDescription, useSignerEmail, useSignerAddress, useFile } = formState;
+const Create = ({ formState, setChainId, chainId, setMetaDataHash, metaDataHash }) => {
+    const { useTitle, useDescription, useSignerEmail, useSignerAddress, useFile, useAccountAddress } = formState;
     const [title, setTitle] = useTitle()
     const [description, setDescription] = useDescription()
     const [signerEmail, setSignerEmail] = useSignerEmail()
     const [signerAddress, setSignerAddress] = useSignerAddress()
     const [file, setFile] = useFile();
+    const [accountAddress, setAccountAddress] = useAccountAddress(null)
 
     const [uploading, setUploading] = useState(false)
     const [uploaded, setUploaded] = useState(false)
     const [uploadingError, setUploadingError] = useState(false)
     const [imgHash, setImgHash] = useState(null)
-    const [transactionId, setTransactionId] = useState()
     const [contractAddress, setContractAddress] = useState()
 
-    // const sendTx = async (address) => {
-    //     const res = await ethereum.request({
-    //         method: "eth_sendTransaction",
-    //         params: [{
-    //             to: "0xB028917C58aA30D891049e55a9AaAAEa0473a9AE",
-    //             from: "0x4A30840eF172FEe3745fEd8e757Cdd6922C2ac92",
-    //             value: "0x00",
-    //             chainId: "0x13881"
-    //         }]
-    //     })
-    //     return res;
-    // }
-    // const deployContract = async (title, description, signerAddress, imgHash) => {
-    //     try {
-    //         // const provider = new Web3Provider(window.ethereum); // Use Web3Provider instead of BrowserProvider
-    //         // const signer = 
+    async function sendJsonToIpfs(documentUrl) {
+        const formData = new FormData()
+        const obj = { title, description, documentUrl, requestFrom: accountAddress, requestTo: signerAddress, contractAddress }
+        const jsonObj = JSON.stringify(obj)
+        const blob = new Blob([jsonObj], { type: "application/json" });
+        formData.append('file', blob)
+        try {
+            const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
+                maxBodyLength: "Infinity",
+                headers: {
+                    'Content-Type': `multipart/form-data ; boundary=${formData._boundary}`,
+                    'pinata_api_key': 'db021f2efac1258ffe00',
+                    'pinata_secret_api_key': 'e625525f0d52b26917314101cc3420a9393a7e16bcd02d4699b83fa29a693191',
+                    'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1OTk2ZGEwMS1lMGZkLTRmODEtODQ0NS1mMjdmMDY2Y2EzMjAiLCJlbWFpbCI6ImJpbGFsMTAxc2hhaWtoQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkYjAyMWYyZWZhYzEyNThmZmUwMCIsInNjb3BlZEtleVNlY3JldCI6ImU2MjU1MjVmMGQ1MmIyNjkxNzMxNDEwMWNjMzQyMGE5MzkzYTdlMTZiY2QwMmQ0Njk5YjgzZmEyOWE2OTMxOTEiLCJpYXQiOjE2OTI3OTU0ODh9.D61YjsgW5KvI3OIxuHjsqYVKqUlx_tlByDsrzB_3J1Y"
+                }
+            })
+            return res.data;
 
-    //         const contractFactory = new ethers.ContractFactory(
-    //             ABI,
-    //             Bytecode,
-    //             signer
-    //         );
-    //         contractFactory.signer = signer;
-    //         console.log("this i beofre=", (await contractFactory.signer));
-    //         const address = (await signer).getAddress();
-    //         console.log("Address:", address);
-    //         console.log("before Deploy");
-    //         const contractInstance = await contractFactory.deploy(title, description, signerAddress, imgHash)
-    //         console.log("after  =", contractInstance.address);
-    //         await contractInstance.deployed();
-    //         // const contractSigner = await contractInstance.connect(signerAddress);
-    //         // if (type === userStatus.WHITELIST) {
-    //         //     const tx = await contractSigner.whitelistUser(teamHash, user, {
-    //         //         gasLimit: 1000000,
-    //         //     });
-    //         //     return await tx.wait();
-    //         // }
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // };
+        } catch (error) {
+            console.log(error);
+        }
 
+    }
     const deployContract = async (fileName, title, description, signerAddress, imgHash) => {
         try {
             const provider = new Web3Provider(window.ethereum);
@@ -97,56 +92,18 @@ const Create = ({ formState }) => {
                 Bytecode,
                 signer
             );
-            // contractFactory.signer = signer;
-            // console.log("this i beofre=", (await contractFactory.signer));
             const address = (await signer.getAddress());
             const contractInstance = await contractFactory.deploy(fileName, title, description, signerAddress, imgHash)
 
             await contractInstance.deployTransaction.wait()
-            console.log(contractInstance);
-            console.log("after  =", contractInstance.address);
+            // console.log(contractInstance);
+            // console.log("after  =", contractInstance.address);
             return contractInstance.address;
 
-            // console.log(await contractInstance.intendedSigner());
-
-
-            // const contractSigner = await contractInstance.connect(signerAddress);
-            // if (type === userStatus.WHITELIST) {
-            //     const tx = await contractSigner.whitelistUser(teamHash, user, {
-            //         gasLimit: 1000000,
-            //     });
-            //     return await tx.wait();
-            // }
         } catch (error) {
             console.log(error);
         }
     };
-    async function connectMetamask() {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
-            .catch((err) => {
-                if (err.code === 4001) {
-                    // EIP-1193 userRejectedRequest error
-                    // If this happens, the user rejected the connection request.
-                    console.log('Please connect to MetaMask.');
-                } else {
-                    console.error(err);
-                }
-            });
-        console.log(accounts);
-        await ethereum.request({
-            method: "wallet_requestPermissions",
-            params: [{
-                eth_accounts: {}
-            }]
-        })
-    }
-
-    useEffect(() => {
-        if (!window.ethereum.isConnected()) {
-            connectMetamask()
-        }
-
-    }, [])
 
     const handleForm = (e) => {
 
@@ -158,47 +115,44 @@ const Create = ({ formState }) => {
             setUploading(false)
             return
         }
-        if (signerEmail) {
-            emailjs.send('service_cn9z4ey', 'template_n8iswrs', { from_name: 'sign-on-chain', to_name: 'bilal', message: 'hello first mail' }, 'mWritrH0gsysW65x4')
-                .then((result) => {
-                    // show the user a success message
-                    console.log(result);
-                }, (error) => {
-                    // show the user an error
-                    console.log(error);
-                });
-        }
+
         const pinFileToIPFS = async () => {
             const formData = new FormData();
-            formData.append('file', file)
 
+            formData.append('file', file, file.name);
+            // formData.append('file', blob, "metadata.json");
+            // Append pinataMetadata and pinataOptions as you did before
             const pinataMetadata = JSON.stringify({
-                name: file.name,
-                title,
-                description,
-                signerAddress
+                name: "userData",
             });
             formData.append('pinataMetadata', pinataMetadata);
 
             const pinataOptions = JSON.stringify({
                 cidVersion: 0,
-            })
+                wrapWithDirectory: true,
+            });
             formData.append('pinataOptions', pinataOptions);
 
             try {
                 const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
                     maxBodyLength: "Infinity",
                     headers: {
-                        'Content-Type': `multipart/form-data`,
+                        'Content-Type': `multipart/form-data ; boundary=${formData._boundary}`,
                         'pinata_api_key': 'db021f2efac1258ffe00',
                         'pinata_secret_api_key': 'e625525f0d52b26917314101cc3420a9393a7e16bcd02d4699b83fa29a693191',
                         'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1OTk2ZGEwMS1lMGZkLTRmODEtODQ0NS1mMjdmMDY2Y2EzMjAiLCJlbWFpbCI6ImJpbGFsMTAxc2hhaWtoQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkYjAyMWYyZWZhYzEyNThmZmUwMCIsInNjb3BlZEtleVNlY3JldCI6ImU2MjU1MjVmMGQ1MmIyNjkxNzMxNDEwMWNjMzQyMGE5MzkzYTdlMTZiY2QwMmQ0Njk5YjgzZmEyOWE2OTMxOTEiLCJpYXQiOjE2OTI3OTU0ODh9.D61YjsgW5KvI3OIxuHjsqYVKqUlx_tlByDsrzB_3J1Y"
                     }
                 });
                 setImgHash(res.data.IpfsHash)
-                console.log("File = ",file);
-                const contractAddress = await deployContract( file.name, title, description, signerAddress, res.data.IpfsHash)
+                const contractAddress = await deployContract(file.name, title, description, signerAddress, res.data.IpfsHash)
                 setContractAddress(contractAddress)
+                const documentUrl = `https://ipfs.io/ipfs/${res.data.IpfsHash}`
+                const resMetaData = await sendJsonToIpfs(documentUrl)
+                console.log(resMetaData);
+                setMetaDataHash(resMetaData.IpfsHash)
+                if (signerEmail) {
+                    sendEmail(signerEmail, signerAddress, res.data.IpfsHash, contractAddress)
+                }
                 setUploadingError(false)
                 setUploading(false)
                 setUploaded(true)
@@ -212,7 +166,7 @@ const Create = ({ formState }) => {
     }
     return (
         <>
-            <Header />
+            <Header chainId={chainId} setChainId={setChainId} accountAddress={accountAddress} setAccountAddress={setAccountAddress} />
             <div className='bg-gradient-to-bl  from-sky-900 via-gray-900 to-slate-900 min-h-fit flex justify-center p-1'>
                 <div className='bg-gray-600 w-2/4 mt-16'>
                     <h1 className='mt-5 ml-5 font-extrabold text-cyan-500 text-3xl'>Create new esignature request</h1>
@@ -269,10 +223,10 @@ const Create = ({ formState }) => {
                         {
                             uploaded ? <div>
                                 <h4 className='text-green-400 ml-5'>Created esignature request!</h4>
-                                <h4 className='text-cyan-500 ml-5'><a href="">View metadata</a></h4>
-                                <h4 className='text-cyan-500 ml-5'><a href="">View created contract</a></h4>
+                                <h4 className='text-cyan-500 ml-5'><a href={`https://ipfs.io/ipfs/${metaDataHash}`}>View metadata</a></h4>
+                                <h4 className='text-cyan-500 ml-5'><a href={`https://mumbai.polygonscan.com/address/${contractAddress}`}>View created contract</a></h4>
                                 <h4 className='mt-5 ml-5 text-cyan-500'>Share this url with the potential signer:</h4>
-                                <Link className='ml-5 text-blue-500' to={`/sign/${imgHash}`}> Open eSignature url</Link>
+                                <Link className='ml-5 text-blue-500' to={`/sign/${imgHash}/${contractAddress}/${metaDataHash}`}> Open eSignature url</Link>
                             </div> : null
                         }
                     </form>
