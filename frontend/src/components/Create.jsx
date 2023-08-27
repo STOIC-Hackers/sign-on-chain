@@ -32,28 +32,6 @@ function sendEmail(signerEmail, signerAddress, imgHash, contractAddress) {
 
 }
 
-async function sendJsonToIpfs(title, description, signerAddress, documentUrl, contractAddress) {
-    const formData = new FormData()
-    const obj = { title, description, signerAddress, documentUrl, contractAddress }
-    const jsonObj = JSON.stringify(obj)
-    const blob = new Blob([jsonObj], { type: "application/json" });
-    formData.append('file', blob)
-    try {
-        const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
-            maxBodyLength: "Infinity",
-            headers: {
-                'Content-Type': `multipart/form-data ; boundary=${formData._boundary}`,
-                'pinata_api_key': 'db021f2efac1258ffe00',
-                'pinata_secret_api_key': 'e625525f0d52b26917314101cc3420a9393a7e16bcd02d4699b83fa29a693191',
-                'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1OTk2ZGEwMS1lMGZkLTRmODEtODQ0NS1mMjdmMDY2Y2EzMjAiLCJlbWFpbCI6ImJpbGFsMTAxc2hhaWtoQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkYjAyMWYyZWZhYzEyNThmZmUwMCIsInNjb3BlZEtleVNlY3JldCI6ImU2MjU1MjVmMGQ1MmIyNjkxNzMxNDEwMWNjMzQyMGE5MzkzYTdlMTZiY2QwMmQ0Njk5YjgzZmEyOWE2OTMxOTEiLCJpYXQiOjE2OTI3OTU0ODh9.D61YjsgW5KvI3OIxuHjsqYVKqUlx_tlByDsrzB_3J1Y"
-            }
-        })
-        console.log(res);
-    } catch (error) {
-        console.log(error);
-    }
-
-}
 
 function DragDrop({ useFile }) {
     const [file, setFile] = useFile();
@@ -80,8 +58,33 @@ const Create = ({ formState, setChainId, chainId }) => {
     const [uploaded, setUploaded] = useState(false)
     const [uploadingError, setUploadingError] = useState(false)
     const [imgHash, setImgHash] = useState(null)
+    const [metadataHash, setMetadataHash] = useState(null)
     const [contractAddress, setContractAddress] = useState()
 
+    async function sendJsonToIpfs( documentUrl) {
+        const formData = new FormData()
+        const obj = { title, description, documentUrl,requestFrom: accountAddress,requestTo:signerAddress, contractAddress }
+        const jsonObj = JSON.stringify(obj)
+        const blob = new Blob([jsonObj], { type: "application/json" });
+        formData.append('file', blob)
+        try {
+            const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
+                maxBodyLength: "Infinity",
+                headers: {
+                    'Content-Type': `multipart/form-data ; boundary=${formData._boundary}`,
+                    'pinata_api_key': 'db021f2efac1258ffe00',
+                    'pinata_secret_api_key': 'e625525f0d52b26917314101cc3420a9393a7e16bcd02d4699b83fa29a693191',
+                    'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1OTk2ZGEwMS1lMGZkLTRmODEtODQ0NS1mMjdmMDY2Y2EzMjAiLCJlbWFpbCI6ImJpbGFsMTAxc2hhaWtoQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkYjAyMWYyZWZhYzEyNThmZmUwMCIsInNjb3BlZEtleVNlY3JldCI6ImU2MjU1MjVmMGQ1MmIyNjkxNzMxNDEwMWNjMzQyMGE5MzkzYTdlMTZiY2QwMmQ0Njk5YjgzZmEyOWE2OTMxOTEiLCJpYXQiOjE2OTI3OTU0ODh9.D61YjsgW5KvI3OIxuHjsqYVKqUlx_tlByDsrzB_3J1Y"
+                }
+            })
+            console.log(res);
+            setMetadataHash(res.data.IpfsHash)
+
+        } catch (error) {
+            console.log(error);
+        }
+    
+    }
     const deployContract = async (fileName, title, description, signerAddress, imgHash) => {
         try {
             const provider = new Web3Provider(window.ethereum);
@@ -171,7 +174,7 @@ const Create = ({ formState, setChainId, chainId }) => {
                 // const contractAddress = await deployContract(file.name, title, description, signerAddress, res.data.IpfsHash)
                 // setContractAddress(contractAddress)
                 const documentUrl = `https://ipfs.io/ipfs/${res.data.IpfsHash}`
-                sendJsonToIpfs(title, description, signerAddress, documentUrl, "rfhredhujrfh")
+                sendJsonToIpfs( documentUrl)
                 // console.log(signerEmail, signerAddress, res.data.IpfsHash, contractAddress);
                 if (signerEmail) {
                     sendEmail(signerEmail, signerAddress, res.data.IpfsHash, contractAddress)
@@ -246,7 +249,7 @@ const Create = ({ formState, setChainId, chainId }) => {
                         {
                             uploaded ? <div>
                                 <h4 className='text-green-400 ml-5'>Created esignature request!</h4>
-                                <h4 className='text-cyan-500 ml-5'><a href={`https://ipfs.io/ipfs/${imgHash}`}>View metadata</a></h4>
+                                <h4 className='text-cyan-500 ml-5'><a href={`https://ipfs.io/ipfs/${metadataHash}`}>View metadata</a></h4>
                                 <h4 className='text-cyan-500 ml-5'><a href={`https://mumbai.polygonscan.com/address/${contractAddress}`}>View created contract</a></h4>
                                 <h4 className='mt-5 ml-5 text-cyan-500'>Share this url with the potential signer:</h4>
                                 <Link className='ml-5 text-blue-500' to={`/sign/${imgHash}/${contractAddress}`}> Open eSignature url</Link>
