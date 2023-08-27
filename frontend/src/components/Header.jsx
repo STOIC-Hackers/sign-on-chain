@@ -76,7 +76,7 @@ const Header = ({ accountAddress, setAccountAddress, chainId, setChainId }) => {
                     <img className='w-44 mx-3' src={logo} alt="logo" />
                 </Link>
                 {
-                    accountAddress ? <h5>Hello:{accountAddress}</h5> : <button onClick={btnhandler} className='text-2xl text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg  px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] '>Login with MetaMask</button>
+                    accountAddress ? <h5 className='text-cyan-500'>Hello:{accountAddress}</h5> : <button onClick={btnhandler} className='text-2xl text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg  px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] '>Login with MetaMask</button>
 
                 }
 

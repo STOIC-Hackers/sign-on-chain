@@ -135,13 +135,13 @@ const Modal = ({ contractAdd, setFinalObj, setShowModal }) => {
 
     return (
         <div className='mx-auto my-auto h-[90vh] bg-gray-600 w-2/4'>
-            <div>
-                Name: <input className='bg-black m-5 text-pink-500 ' type="text" name="name" id="" />
+            <div className='text-cyan-300'>
+                Name: <input className='bg-black m-5 text-pink-500 border-dashed border-2 border-cyan-500 ' type="text" name="name" id="" />
             </div>
-            <div>
+            <div className='text-cyan-300'>
                 Signature:
                 <SignatureCanvas penColor='cyan'
-                    canvasProps={{ width: 500, height: 200, className: ' ml -3 px-3 bg-black', id: 'canvas' }} />
+                    canvasProps={{ width: 500, height: 200, className: 'my-3 ml -3 px-3 bg-black border-dashed border-2 border-cyan-500' , id: 'canvas' }} />
             </div>
             <button className=' text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] mt-5 ml-5' onClick={() => setShowModal(false)}>Cancel</button>
             {
@@ -149,7 +149,7 @@ const Modal = ({ contractAdd, setFinalObj, setShowModal }) => {
                     <button onClick={handleCanvasSubmit} type="submit" className=" text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] mt-5 ml-5">Submit</button>
             }
         </div>
-    )
+    ) 
 }
 
 export default Modal
