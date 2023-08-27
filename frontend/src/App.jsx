@@ -13,6 +13,7 @@ const App = () => {
   const [file, setFile] = useState(null);
   const [accountAddress, setAccountAddress] = useState("")
   const [chainId, setChainId] = useState("")
+  const [metaDataHash, setMetaDataHash] = useState()
 
 
   const formState = {
@@ -28,8 +29,8 @@ const App = () => {
   return <>
     <Routes>
       <Route path='/' element={<Home accountAddress={accountAddress} setChainId={setChainId} chainId={chainId} setAccountAddress={setAccountAddress} />}></Route>
-      <Route path='/create' element={<Create setChainId={setChainId} chainId={chainId} formState={formState} />}></Route>
-      <Route path='/sign/:cid/:contractAdd' element={<SignContract formState={formState} />}></Route>
+      <Route path='/create' element={<Create metaDataHash={metaDataHash} setMetaDataHash={setMetaDataHash} setChainId={setChainId} chainId={chainId} formState={formState} />}></Route>
+      <Route path='/sign/:cid/:contractAdd/:metaDatahash' element={<SignContract metaDataHash={metaDataHash} formState={formState} />}></Route>
     </Routes >
   </>
 }

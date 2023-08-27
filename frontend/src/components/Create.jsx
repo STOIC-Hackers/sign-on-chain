@@ -45,7 +45,7 @@ function DragDrop({ useFile }) {
 }
 
 
-const Create = ({ formState, setChainId, chainId }) => {
+const Create = ({ formState, setChainId, chainId, setMetaDataHash, metaDataHash }) => {
     const { useTitle, useDescription, useSignerEmail, useSignerAddress, useFile, useAccountAddress } = formState;
     const [title, setTitle] = useTitle()
     const [description, setDescription] = useDescription()
@@ -58,12 +58,11 @@ const Create = ({ formState, setChainId, chainId }) => {
     const [uploaded, setUploaded] = useState(false)
     const [uploadingError, setUploadingError] = useState(false)
     const [imgHash, setImgHash] = useState(null)
-    const [metadataHash, setMetadataHash] = useState(null)
     const [contractAddress, setContractAddress] = useState()
 
-    async function sendJsonToIpfs( documentUrl) {
+    async function sendJsonToIpfs(documentUrl) {
         const formData = new FormData()
-        const obj = { title, description, documentUrl,requestFrom: accountAddress,requestTo:signerAddress, contractAddress }
+        const obj = { title, description, documentUrl, requestFrom: accountAddress, requestTo: signerAddress, contractAddress }
         const jsonObj = JSON.stringify(obj)
         const blob = new Blob([jsonObj], { type: "application/json" });
         formData.append('file', blob)
@@ -77,13 +76,12 @@ const Create = ({ formState, setChainId, chainId }) => {
                     'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1OTk2ZGEwMS1lMGZkLTRmODEtODQ0NS1mMjdmMDY2Y2EzMjAiLCJlbWFpbCI6ImJpbGFsMTAxc2hhaWtoQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkYjAyMWYyZWZhYzEyNThmZmUwMCIsInNjb3BlZEtleVNlY3JldCI6ImU2MjU1MjVmMGQ1MmIyNjkxNzMxNDEwMWNjMzQyMGE5MzkzYTdlMTZiY2QwMmQ0Njk5YjgzZmEyOWE2OTMxOTEiLCJpYXQiOjE2OTI3OTU0ODh9.D61YjsgW5KvI3OIxuHjsqYVKqUlx_tlByDsrzB_3J1Y"
                 }
             })
-            console.log(res);
-            setMetadataHash(res.data.IpfsHash)
+            return res.data;
 
         } catch (error) {
             console.log(error);
         }
-    
+
     }
     const deployContract = async (fileName, title, description, signerAddress, imgHash) => {
         try {
@@ -98,8 +96,8 @@ const Create = ({ formState, setChainId, chainId }) => {
             const contractInstance = await contractFactory.deploy(fileName, title, description, signerAddress, imgHash)
 
             await contractInstance.deployTransaction.wait()
-            console.log(contractInstance);
-            console.log("after  =", contractInstance.address);
+            // console.log(contractInstance);
+            // console.log("after  =", contractInstance.address);
             return contractInstance.address;
 
         } catch (error) {
@@ -135,31 +133,6 @@ const Create = ({ formState, setChainId, chainId }) => {
             });
             formData.append('pinataOptions', pinataOptions);
 
-            // const pinataMetadata = JSON.stringify({
-            //     name: "userData",
-            // });
-            // formData.append('pinataMetadata', pinataMetadata);
-
-            // const pinataOptions = JSON.stringify({
-            //     cidVersion: 0,
-            //     wrapWithDirectory: true
-            // })
-            // formData.append('pinataOptions', pinataOptions);
-
-            //-----------------------------------------------------------------------
-            //slightly working
-            // const metadata = JSON.stringify({
-            //     name: 'metadata'
-            // });
-            // formData.append('file', blob, "/metadata.json");
-            // formData.append('file', file, file.name)
-            // formData.append('pinataMetadata', metadata);
-            // const options = JSON.stringify({
-            //     cidVersion: 0,
-            // })
-            // formData.append('pinataOptions', options);
-            //-----------------------------------------------------------------------
-
             try {
                 const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
                     maxBodyLength: "Infinity",
@@ -171,11 +144,12 @@ const Create = ({ formState, setChainId, chainId }) => {
                     }
                 });
                 setImgHash(res.data.IpfsHash)
-                // const contractAddress = await deployContract(file.name, title, description, signerAddress, res.data.IpfsHash)
-                // setContractAddress(contractAddress)
+                const contractAddress = await deployContract(file.name, title, description, signerAddress, res.data.IpfsHash)
+                setContractAddress(contractAddress)
                 const documentUrl = `https://ipfs.io/ipfs/${res.data.IpfsHash}`
-                sendJsonToIpfs( documentUrl)
-                // console.log(signerEmail, signerAddress, res.data.IpfsHash, contractAddress);
+                const resMetaData = await sendJsonToIpfs(documentUrl)
+                console.log(resMetaData);
+                setMetaDataHash(resMetaData.IpfsHash)
                 if (signerEmail) {
                     sendEmail(signerEmail, signerAddress, res.data.IpfsHash, contractAddress)
                 }
@@ -249,10 +223,10 @@ const Create = ({ formState, setChainId, chainId }) => {
                         {
                             uploaded ? <div>
                                 <h4 className='text-green-400 ml-5'>Created esignature request!</h4>
-                                <h4 className='text-cyan-500 ml-5'><a href={`https://ipfs.io/ipfs/${metadataHash}`}>View metadata</a></h4>
+                                <h4 className='text-cyan-500 ml-5'><a href={`https://ipfs.io/ipfs/${metaDataHash}`}>View metadata</a></h4>
                                 <h4 className='text-cyan-500 ml-5'><a href={`https://mumbai.polygonscan.com/address/${contractAddress}`}>View created contract</a></h4>
                                 <h4 className='mt-5 ml-5 text-cyan-500'>Share this url with the potential signer:</h4>
-                                <Link className='ml-5 text-blue-500' to={`/sign/${imgHash}/${contractAddress}`}> Open eSignature url</Link>
+                                <Link className='ml-5 text-blue-500' to={`/sign/${imgHash}/${contractAddress}/${metaDataHash}`}> Open eSignature url</Link>
                             </div> : null
                         }
                     </form>

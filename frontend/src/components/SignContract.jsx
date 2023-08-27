@@ -13,7 +13,7 @@ import Modal from './Modal';
 
 
 const SignContract = ({ formState }) => {
-    const { cid, contractAdd } = useParams()
+    const { cid, contractAdd, metaDatahash } = useParams()
     const [title, setTitle] = useState()
     const [description, setDescription] = useState()
     const [documentContentHash, setDocumentContentHash] = useState()
@@ -74,8 +74,12 @@ const SignContract = ({ formState }) => {
                     <ul className='mt- bg-gray-600'>
                         <li className='mt-5 ml-5 text-xl font-semibold'>{title}</li>
                         <li className='mt-5 ml-5'>{description}</li>
-                        <li className='mt-5 ml-5'><a className='text-cyan-300 text-xl' href={`https://mumbai.polygonscan.com/address/${contractAdd}`}>View Contract (Mumbai)</a></li>
-                        <li className='mt-5 ml-5'><a className='text-cyan-300 text-xl' href="">View Request</a></li>
+                        <li className='mt-5 ml-5'>
+                            <a className='text-cyan-300 text-xl' href={`https://mumbai.polygonscan.com/address/${contractAdd}`}>View Contract (Mumbai)</a>
+                        </li>
+                        <li className='mt-5 ml-5'>
+                            <a className='text-cyan-300 text-xl' href={`https://ipfs.io/ipfs/${metaDatahash}`}>View Request</a>
+                        </li>
                         <h1 className='mt-5 ml-5 font-bold text-xl text-cyan-300 py-5'>Documents to acknowledge:</h1>
                         <li className='mt-5 ml-5'><a href={`https://ipfs.io/ipfs/${cid}`}>{fileName}</a></li>
                         <li className='mt-12 ml-5 text-md text-cyan-300 py-1'>By continuing, you agree to the documents listed and available for download above.</li>
