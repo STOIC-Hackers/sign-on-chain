@@ -49,9 +49,16 @@ const SignContract = ({ formState }) => {
     }, [])
 
     if (finalObj) {
-        return <pre className='text-white'>
-            {finalObj}
-        </pre>
+        return (
+            <div className='w-2/3 my-auto mx-auto h-[100vh] overflow-scroll bg-green-500'>
+                <h1 className='text-3xl mt-10'>Transaction complete!</h1>
+                <h6 className='text-lg mt-5'>Access your completed polygon contract and signature packet.</h6>
+                <h6 className='mt-5'><a className='text-blue-400' href={`https://mumbai.polygonscan.com/address/${contractAdd}`}>View Contract</a></h6>
+                <h6 className='text-sm mt-5'>Full response below:</h6>
+
+                <pre className='ml-2 mt-6 text-sm'>{finalObj}</pre>
+            </div>
+        )
     }
 
     return (

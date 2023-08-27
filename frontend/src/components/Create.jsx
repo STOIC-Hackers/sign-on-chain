@@ -89,33 +89,83 @@ const Create = ({ formState }) => {
         }
         const pinFileToIPFS = async () => {
             const formData = new FormData();
-            formData.append('file', file)
+            const obj = { title, description, signerAddress }
+            const jsonObj = JSON.stringify(obj)
+            const blob = new Blob([jsonObj], { type: "application/json" });
 
+
+            const options = {
+                method: 'POST',
+                headers: { accept: 'application/json', 'content-type': 'application/json' },
+                body: JSON.stringify({
+                    pinataContent: { somekey: 'somevalue' },
+                    pinataOptions: { cidVersion: 0, wrapWithDirectory: false },
+                    pinataMetadata: { keyvalues: { whimsey_level: 100, is_lovable: true }, name: 'pinnie.png' }
+                })
+            };
+
+            fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', options)
+                .then(response => response.json())
+                .then(response => console.log(response))
+                .catch(err => console.error(err));
+
+
+            // Append the actual image file with its original filename
+
+            // formData.append('file', blob, { filename: "blob.json" });
+            // formData.append('file', file, { filename: "image.jpg" });
+            // formData.append('file', file, file.name);
+            formData.append('file', blob, "metadata.json");
+            // Append pinataMetadata and pinataOptions as you did before
             const pinataMetadata = JSON.stringify({
-                name: file.name,
-                title,
-                description,
-                signerAddress
+                name: "userData",
             });
             formData.append('pinataMetadata', pinataMetadata);
 
             const pinataOptions = JSON.stringify({
                 cidVersion: 0,
-            })
+                wrapWithDirectory: true,
+            });
             formData.append('pinataOptions', pinataOptions);
+
+            // const pinataMetadata = JSON.stringify({
+            //     name: "userData",
+            // });
+            // formData.append('pinataMetadata', pinataMetadata);
+
+            // const pinataOptions = JSON.stringify({
+            //     cidVersion: 0,
+            //     wrapWithDirectory: true
+            // })
+            // formData.append('pinataOptions', pinataOptions);
+
+            //-----------------------------------------------------------------------
+            //slightly working
+            // const metadata = JSON.stringify({
+            //     name: 'metadata'
+            // });
+            // formData.append('file', blob, "/metadata.json");
+            // formData.append('file', file, file.name)
+            // formData.append('pinataMetadata', metadata);
+            // const options = JSON.stringify({
+            //     cidVersion: 0,
+            // })
+            // formData.append('pinataOptions', options);
+            //-----------------------------------------------------------------------
 
             try {
                 const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
                     maxBodyLength: "Infinity",
                     headers: {
-                        'Content-Type': `multipart/form-data`,
+                        'Content-Type': `multipart/form-data ; boundary=${formData._boundary}`,
                         'pinata_api_key': 'db021f2efac1258ffe00',
                         'pinata_secret_api_key': 'e625525f0d52b26917314101cc3420a9393a7e16bcd02d4699b83fa29a693191',
                         'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1OTk2ZGEwMS1lMGZkLTRmODEtODQ0NS1mMjdmMDY2Y2EzMjAiLCJlbWFpbCI6ImJpbGFsMTAxc2hhaWtoQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkYjAyMWYyZWZhYzEyNThmZmUwMCIsInNjb3BlZEtleVNlY3JldCI6ImU2MjU1MjVmMGQ1MmIyNjkxNzMxNDEwMWNjMzQyMGE5MzkzYTdlMTZiY2QwMmQ0Njk5YjgzZmEyOWE2OTMxOTEiLCJpYXQiOjE2OTI3OTU0ODh9.D61YjsgW5KvI3OIxuHjsqYVKqUlx_tlByDsrzB_3J1Y"
                     }
                 });
                 setImgHash(res.data.IpfsHash)
-                console.log("File = ", file);
+                console.log(file);
+                console.log(res.data);
                 const contractAddress = await deployContract(file.name, title, description, signerAddress, res.data.IpfsHash)
                 setContractAddress(contractAddress)
                 setUploadingError(false)

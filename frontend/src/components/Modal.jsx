@@ -66,7 +66,7 @@ const Modal = ({ contractAdd, setFinalObj }) => {
                 nftResults,
                 ...txReciept,
             }
-            const finalObj = JSON.stringify(nftTransactionDetails, null, 2)
+            const finalObj = JSON.stringify(nftTransactionDetails, null, 6)
             setFinalObj(finalObj)
             console.log(finalObj);
         } catch (error) {
