@@ -17,6 +17,43 @@ const fileTypes = ["JPG", "PNG", "GIF", "PDF"];
 const { ethereum } = window;
 
 
+function sendEmail(signerEmail, signerAddress, imgHash, contractAddress) {
+    const Link = `http://localhost:5173/sign/${imgHash}/${contractAddress}`
+    if (signerEmail) {
+        emailjs.send('service_cn9z4ey', 'template_2smz5d1', { from_name: 'sign-on-chain', to_name: signerAddress, message: `Here is the link to sign the contract ${Link}`, signer_email: signerEmail }, 'mWritrH0gsysW65x4')
+            .then((result) => {
+                // show the user a success message
+                console.log(result);
+            }, (error) => {
+                // show the user an error
+                console.log(error);
+            });
+    }
+
+}
+
+async function sendJsonToIpfs(title, description, signerAddress, documentUrl, contractAddress) {
+    const formData = new FormData()
+    const obj = { title, description, signerAddress, documentUrl, contractAddress }
+    const jsonObj = JSON.stringify(obj)
+    const blob = new Blob([jsonObj], { type: "application/json" });
+    formData.append('file', blob)
+    try {
+        const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
+            maxBodyLength: "Infinity",
+            headers: {
+                'Content-Type': `multipart/form-data ; boundary=${formData._boundary}`,
+                'pinata_api_key': 'db021f2efac1258ffe00',
+                'pinata_secret_api_key': 'e625525f0d52b26917314101cc3420a9393a7e16bcd02d4699b83fa29a693191',
+                'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1OTk2ZGEwMS1lMGZkLTRmODEtODQ0NS1mMjdmMDY2Y2EzMjAiLCJlbWFpbCI6ImJpbGFsMTAxc2hhaWtoQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkYjAyMWYyZWZhYzEyNThmZmUwMCIsInNjb3BlZEtleVNlY3JldCI6ImU2MjU1MjVmMGQ1MmIyNjkxNzMxNDEwMWNjMzQyMGE5MzkzYTdlMTZiY2QwMmQ0Njk5YjgzZmEyOWE2OTMxOTEiLCJpYXQiOjE2OTI3OTU0ODh9.D61YjsgW5KvI3OIxuHjsqYVKqUlx_tlByDsrzB_3J1Y"
+            }
+        })
+        console.log(res);
+    } catch (error) {
+        console.log(error);
+    }
+
+}
 
 function DragDrop({ useFile }) {
     const [file, setFile] = useFile();
@@ -30,7 +67,7 @@ function DragDrop({ useFile }) {
 }
 
 
-const Create = ({ formState }) => {
+const Create = ({ formState, setChainId, chainId }) => {
     const { useTitle, useDescription, useSignerEmail, useSignerAddress, useFile, useAccountAddress } = formState;
     const [title, setTitle] = useTitle()
     const [description, setDescription] = useDescription()
@@ -77,45 +114,12 @@ const Create = ({ formState }) => {
             setUploading(false)
             return
         }
-        if (signerEmail) {
-            emailjs.send('service_cn9z4ey', 'template_n8iswrs', { from_name: 'sign-on-chain', to_name: 'bilal', message: 'hello first mail' }, 'mWritrH0gsysW65x4')
-                .then((result) => {
-                    // show the user a success message
-                    console.log(result);
-                }, (error) => {
-                    // show the user an error
-                    console.log(error);
-                });
-        }
+
         const pinFileToIPFS = async () => {
             const formData = new FormData();
-            const obj = { title, description, signerAddress }
-            const jsonObj = JSON.stringify(obj)
-            const blob = new Blob([jsonObj], { type: "application/json" });
 
-
-            const options = {
-                method: 'POST',
-                headers: { accept: 'application/json', 'content-type': 'application/json' },
-                body: JSON.stringify({
-                    pinataContent: { somekey: 'somevalue' },
-                    pinataOptions: { cidVersion: 0, wrapWithDirectory: false },
-                    pinataMetadata: { keyvalues: { whimsey_level: 100, is_lovable: true }, name: 'pinnie.png' }
-                })
-            };
-
-            fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', options)
-                .then(response => response.json())
-                .then(response => console.log(response))
-                .catch(err => console.error(err));
-
-
-            // Append the actual image file with its original filename
-
-            // formData.append('file', blob, { filename: "blob.json" });
-            // formData.append('file', file, { filename: "image.jpg" });
-            // formData.append('file', file, file.name);
-            formData.append('file', blob, "metadata.json");
+            formData.append('file', file, file.name);
+            // formData.append('file', blob, "metadata.json");
             // Append pinataMetadata and pinataOptions as you did before
             const pinataMetadata = JSON.stringify({
                 name: "userData",
@@ -164,10 +168,14 @@ const Create = ({ formState }) => {
                     }
                 });
                 setImgHash(res.data.IpfsHash)
-                console.log(file);
-                console.log(res.data);
-                const contractAddress = await deployContract(file.name, title, description, signerAddress, res.data.IpfsHash)
-                setContractAddress(contractAddress)
+                // const contractAddress = await deployContract(file.name, title, description, signerAddress, res.data.IpfsHash)
+                // setContractAddress(contractAddress)
+                const documentUrl = `https://ipfs.io/ipfs/${res.data.IpfsHash}`
+                sendJsonToIpfs(title, description, signerAddress, documentUrl, "rfhredhujrfh")
+                // console.log(signerEmail, signerAddress, res.data.IpfsHash, contractAddress);
+                if (signerEmail) {
+                    sendEmail(signerEmail, signerAddress, res.data.IpfsHash, contractAddress)
+                }
                 setUploadingError(false)
                 setUploading(false)
                 setUploaded(true)
@@ -181,7 +189,7 @@ const Create = ({ formState }) => {
     }
     return (
         <>
-            <Header accountAddress={accountAddress} setAccountAddress={setAccountAddress} />
+            <Header chainId={chainId} setChainId={setChainId} accountAddress={accountAddress} setAccountAddress={setAccountAddress} />
             <div className='bg-gradient-to-bl  from-sky-900 via-gray-900 to-slate-900 min-h-fit flex justify-center p-1'>
                 <div className='bg-gray-600 w-2/4 mt-16'>
                     <h1 className='mt-5 ml-5 font-extrabold text-cyan-500 text-3xl'>Create new esignature request</h1>

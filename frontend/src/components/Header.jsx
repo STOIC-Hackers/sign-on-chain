@@ -10,20 +10,37 @@ import { Web3Provider } from '@ethersproject/providers';
 
 
 
-const Header = ({ accountAddress, setAccountAddress }) => {
+const Header = ({ accountAddress, setAccountAddress, chainId, setChainId }) => {
 
-    const chainChanged = async () => {
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
 
-        window.ethereum.on('chainChanged', () => handleChainChanged(chainId));
+    async function handleChainChanged() {
+        const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
 
-        function handleChainChanged(chainId) {
-            // We recommend reloading the page, unless you must do otherwise.
-            console.log(chainId);
-            window.location.reload();
+        if (currentChainId !== "0x13881") {
+            window.alert("Change the network to Matic");
+        } else {
+            console.log("Chain id is Matic");
+            setChainId(currentChainId)
         }
     }
-    chainChanged()
+
+
+    window.ethereum.on('chainChanged', () => handleChainChanged());
+
+    useEffect(() => {
+
+        async function getChainId() {
+            const ChainId = await window.ethereum.request({ method: 'eth_chainId' });
+            if (ChainId !== "0x13881") {
+                window.alert("Change the network to Matic");
+            }
+        }
+        if (!chainId) {
+            getChainId()
+        }
+
+    }, [])
+
 
 
     const reqAccounts = () => {
@@ -52,10 +69,6 @@ const Header = ({ accountAddress, setAccountAddress }) => {
         }
     };
 
-    async function handleLogout() {
-        setAccountAddress(false)
-    }
-
     return (
         <>
             <div className='flex m-3 ml-2'>
@@ -70,7 +83,6 @@ const Header = ({ accountAddress, setAccountAddress }) => {
                 <Link to='/create'>
                     <h5 className='mx-3 text-center text-sm hover:text-blue-400 pt-2'>Create-E-signature-request</h5>
                 </Link>
-                <button onClick={handleLogout} className='text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] '>Logout</button>
             </div >
         </>
     )

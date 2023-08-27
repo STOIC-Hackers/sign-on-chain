@@ -12,6 +12,8 @@ const App = () => {
   const [signerAddress, setSignerAddress] = useState("")
   const [file, setFile] = useState(null);
   const [accountAddress, setAccountAddress] = useState("")
+  const [chainId, setChainId] = useState("")
+
 
   const formState = {
     useTitle() {
@@ -25,8 +27,8 @@ const App = () => {
   }
   return <>
     <Routes>
-      <Route path='/' element={<Home accountAddress={accountAddress} setAccountAddress={setAccountAddress} />}></Route>
-      <Route path='/create' element={<Create formState={formState} />}></Route>
+      <Route path='/' element={<Home accountAddress={accountAddress} setChainId={setChainId} chainId={chainId} setAccountAddress={setAccountAddress} />}></Route>
+      <Route path='/create' element={<Create setChainId={setChainId} chainId={chainId} formState={formState} />}></Route>
       <Route path='/sign/:cid/:contractAdd' element={<SignContract formState={formState} />}></Route>
     </Routes >
   </>
