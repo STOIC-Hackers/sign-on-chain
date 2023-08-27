@@ -10,6 +10,7 @@ import { ABI } from '../CONSTANTS/Abi';
 import { useState } from 'react';
 import { TailSpin } from 'react-loader-spinner'
 import styles from './style.module.css'
+import { useEffect } from 'react';
 // import { TailS }
 const { ethereum } = window;
 
@@ -17,7 +18,25 @@ const { ethereum } = window;
 const Modal = ({ contractAdd, setFinalObj, setShowModal }) => {
     const [uploading, setUploading] = useState(false)
     const [uploaded, setUploaded] = useState(false)
+    const [userAdd, setUserAdd] = useState()
     const canvas = document.querySelector("#canvas");
+
+    const reqAccounts = () => {
+        if (window.ethereum) {
+            // res[0] for fetching a first wallet
+            window.ethereum
+                .request({ method: "eth_requestAccounts" })
+                .then((res) => {
+                    setUserAdd(res[0])
+                });
+        }
+    }
+
+    useEffect(() => {
+        reqAccounts()
+    }, [])
+
+    window.ethereum.on('accountsChanged', () => reqAccounts());
 
     let signaturePad;
     if (canvas) {
@@ -135,15 +154,15 @@ const Modal = ({ contractAdd, setFinalObj, setShowModal }) => {
     }
 
     return (
-      
-  <div className={`${styles['bg-gradient-to-br']} ${styles['animate-spin-slow']} p-8 mt-[10vh] ml-40 shadow-2xl  h-[90vh]  w-4/5 px-3`}>
+
+        <div className={`${styles['bg-gradient-to-br']} ${styles['animate-spin-slow']} p-8 mt-[10vh] ml-40 shadow-2xl  h-[90vh]  w-4/5 px-3`}>
             <div className='text-cyan-300'>
                 Name: <input className='bg-black m-5 text-pink-500 border-dashed border-2 border-cyan-500 px-3' type="text" name="name" id="" />
             </div>
             <div className='text-cyan-300 px-3'>
                 Signature:
                 <SignatureCanvas penColor='cyan'
-                    canvasProps={{ width: 500, height: 200, className: 'my-3 ml -10 pl-6 bg-black border-dashed border-2 border-cyan-500' , id: 'canvas' }} />
+                    canvasProps={{ width: 500, height: 200, className: 'my-3 ml -10 pl-6 bg-black border-dashed border-2 border-cyan-500', id: 'canvas' }} />
             </div>
             <button className=' text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] mt-5 ml-5' onClick={() => setShowModal(false)}>Cancel</button>
             {
@@ -151,8 +170,8 @@ const Modal = ({ contractAdd, setFinalObj, setShowModal }) => {
                     <button onClick={handleCanvasSubmit} type="submit" className=" text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] mt-5 ml-5">Submit</button>
             }
         </div>
-      
-    ) 
+
+    )
 }
 
 export default Modal
